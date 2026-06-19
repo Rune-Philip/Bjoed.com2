@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400&family=Syne:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#07060a;}
+  body{overflow-x:hidden;}
+  ::selection{background:#c7f94b;color:#07060a}
+  a,button{font-family:inherit}
+  @keyframes imBlobA{0%,100%{transform:translate(-30px,-12px) scale(1)}33%{transform:translate(20px,-26px) scale(1.3)}66%{transform:translate(10px,24px) scale(.82)}}
+  @keyframes imBlobB{0%,100%{transform:translate(28px,18px) scale(1.15)}33%{transform:translate(-16px,22px) scale(.8)}66%{transform:translate(-24px,-18px) scale(1.25)}}
+  @keyframes imBlobC{0%,100%{transform:translate(6px,26px) scale(.9)}50%{transform:translate(-4px,-28px) scale(1.2)}}
+  @keyframes imG1{0%,100%{transform:translate(-16px,-7px) scale(1)}33%{transform:translate(13px,-18px) scale(1.2)}66%{transform:translate(7px,15px) scale(.84)}}
+  @keyframes imG2{0%,100%{transform:translate(18px,11px) scale(1.12)}33%{transform:translate(-11px,16px) scale(.8)}66%{transform:translate(-18px,-11px) scale(1.22)}}
+  @keyframes imG3{0%,100%{transform:translate(5px,18px) scale(.88)}50%{transform:translate(-4px,-20px) scale(1.18)}}
+  @keyframes imG4{0%,100%{transform:translate(-14px,9px) scale(1.06)}50%{transform:translate(16px,-7px) scale(.88)}}
+  @keyframes imG5{0%,100%{transform:translate(2px,-15px) scale(.95)}50%{transform:translate(-13px,6px) scale(1.12)}}
+  @keyframes imGoSpin{to{transform:rotate(360deg)}}
+  .im-goo-g{transform-box:fill-box;transform-origin:center;}
+  .im-goo-c{transform-box:fill-box;transform-origin:center;}
+  @keyframes imRise{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+  @keyframes galIn{0%{opacity:0;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+  #gal-grid{column-count:3;column-gap:16px;}
+  @media(max-width:920px){#gal-grid{column-count:2;}}
+  @media(max-width:560px){#gal-grid{column-count:1;}}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;background:#07060a;color:#f0ece3;font-family:'Space Grotesk',sans-serif;">
+
+  <!-- faint earth + stars shader -->
+  <canvas id="gal-shader" style="position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;"></canvas>
+  <div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(130% 120% at 50% 30%,transparent 45%,rgba(7,6,10,.6) 85%,rgba(7,6,10,.9) 100%);"></div>
+
+  <!-- boot splash: transparent SVG gooey loader -->
+  <div id="gal-boot" style="position:fixed;inset:0;z-index:300;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:1;transition:opacity .9s ease;pointer-events:none;">
+    <svg id="gal-boot-loader" width="240" height="240" viewBox="0 0 220 220" style="overflow:visible;position:absolute;left:0;top:0;will-change:transform;">
+      <defs>
+        <filter id="gal-goo-boot" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b"></feGaussianBlur>
+          <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"></feColorMatrix>
+        </filter>
+      </defs>
+      <g class="im-goo-g" filter="url(#gal-goo-boot)" style="animation:imGoSpin 17s linear infinite;">
+        <circle class="im-goo-c" cx="110" cy="110" r="30" fill="#f4f1ea" style="animation:imG1 3.2s ease-in-out infinite;"></circle>
+        <circle class="im-goo-c" cx="110" cy="110" r="25" fill="#f4f1ea" style="animation:imG2 3.8s ease-in-out infinite;"></circle>
+        <circle class="im-goo-c" cx="110" cy="110" r="22" fill="#f4f1ea" style="animation:imG3 2.9s ease-in-out infinite;"></circle>
+        <circle class="im-goo-c" cx="110" cy="110" r="18" fill="#f4f1ea" style="animation:imG4 2.5s ease-in-out infinite;"></circle>
+        <circle class="im-goo-c" cx="110" cy="110" r="15" fill="#f4f1ea" style="animation:imG5 3.5s ease-in-out infinite;"></circle>
+      </g>
+    </svg>
+  </div>
+
+  <!-- header -->
+  <header style="position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px clamp(20px,4vw,48px);background:linear-gradient(to bottom,rgba(7,6,10,.9),rgba(7,6,10,0));backdrop-filter:blur(6px);">
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:rgba(240,236,227,.78);border:1px solid rgba(240,236,227,.25);padding:8px 13px;transition:border-color .2s,color .2s;" style-hover="border-color:#c7f94b;color:#f0ece3;">← {{ t.home }}</a>
+    <span onClick="{{ logoTap }}" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:3px;color:rgba(240,236,227,.55);cursor:default;user-select:none;">BJOED.COM</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onClick="{{ toggleLang }}" style="cursor:pointer;background:transparent;border:1px solid rgba(240,236,227,.25);color:rgba(240,236,227,.85);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;padding:7px 10px;" style-hover="border-color:#c7f94b;color:#f0ece3;">{{ langToggleLabel }}</button>
+      <sc-if value="{{ admin }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ logout }}" style="cursor:pointer;background:transparent;border:1px solid rgba(240,236,227,.25);color:rgba(240,236,227,.7);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;padding:7px 10px;" style-hover="border-color:#ff5a5a;color:#ff8a8a;">{{ t.logout }}</button>
+        <button onClick="{{ pickFiles }}" style="cursor:pointer;border:none;background:#c7f94b;color:#07060a;font-family:'Space Mono',monospace;font-weight:400;font-size:11px;letter-spacing:2px;padding:8px 15px;" style-hover="background:#d6ff6e;">+ {{ t.add }}</button>
+      </sc-if>
+    </div>
+  </header>
+
+  <!-- content -->
+  <main style="position:relative;z-index:10;max-width:1200px;margin:0 auto;padding:clamp(112px,15vh,150px) clamp(20px,4vw,48px) 90px;">
+    <div style="margin-bottom:clamp(26px,4vh,40px);animation:imRise 1s .1s both;">
+      <h1 style="font-family:'Michroma',sans-serif;font-weight:400;font-size:clamp(30px,5.5vw,64px);line-height:1.05;letter-spacing:.02em;color:#eaf2ff;text-shadow:0 0 22px rgba(150,190,255,.28);">{{ t.title }}<span style="color:#c7f94b;">.</span></h1>
+      <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:rgba(240,236,227,.5);margin-top:12px;">{{ countLabel }}</div>
+    </div>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ true }}">
+      <div style="border:1px dashed rgba(240,236,227,.22);border-radius:12px;padding:clamp(40px,8vh,90px) 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;animation:imRise 1s .2s both;">
+        <svg width="110" height="110" viewBox="0 0 220 220" style="overflow:visible;opacity:.85;">
+          <defs>
+            <filter id="gal-goo-empty" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b"></feGaussianBlur>
+              <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"></feColorMatrix>
+            </filter>
+          </defs>
+          <g class="im-goo-g" filter="url(#gal-goo-empty)" style="animation:imGoSpin 17s linear infinite;">
+            <circle class="im-goo-c" cx="110" cy="110" r="30" fill="#f4f1ea" style="animation:imG1 3.2s ease-in-out infinite;"></circle>
+            <circle class="im-goo-c" cx="110" cy="110" r="25" fill="#f4f1ea" style="animation:imG2 3.8s ease-in-out infinite;"></circle>
+            <circle class="im-goo-c" cx="110" cy="110" r="22" fill="#f4f1ea" style="animation:imG3 2.9s ease-in-out infinite;"></circle>
+            <circle class="im-goo-c" cx="110" cy="110" r="18" fill="#f4f1ea" style="animation:imG4 2.5s ease-in-out infinite;"></circle>
+          </g>
+        </svg>
+        <div style="color:rgba(240,236,227,.65);font-size:15px;max-width:34ch;line-height:1.6;">{{ emptyMsg }}</div>
+        <sc-if value="{{ admin }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ pickFiles }}" style="cursor:pointer;border:none;background:#c7f94b;color:#07060a;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;padding:11px 20px;" style-hover="background:#d6ff6e;">+ {{ t.add }}</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <div id="gal-grid">
+      <sc-for list="{{ photos }}" as="ph" hint-placeholder-count="0">
+        <figure onClick="{{ ph.open }}" style="break-inside:avoid;margin:0 0 16px;position:relative;border-radius:9px;overflow:hidden;border:1px solid rgba(240,236,227,.16);cursor:zoom-in;background:#0d0c12;animation:galIn .5s ease both;">
+          <img src="{{ ph.url }}" alt="" loading="lazy" style="display:block;width:100%;height:auto;">
+          <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 60%,rgba(7,6,10,.6));"></div>
+          <button onClick="{{ ph.toggleLike }}" title="Like" style="position:absolute;left:9px;bottom:9px;display:flex;align-items:center;gap:7px;border:none;background:rgba(7,6,10,.5);backdrop-filter:blur(5px);border-radius:999px;padding:7px 12px;cursor:pointer;color:#f0ece3;font-family:'Space Mono',monospace;font-size:12px;transition:background .2s;" style-hover="background:rgba(7,6,10,.8);">
+            <span style="font-size:15px;line-height:1;color:{{ ph.heartColor }};">{{ ph.heartIcon }}</span>
+            <span style="min-width:8px;">{{ ph.likes }}</span>
+          </button>
+          <sc-if value="{{ ph.admin }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ ph.remove }}" title="Remove" style="position:absolute;top:9px;right:9px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(240,236,227,.3);background:rgba(7,6,10,.6);backdrop-filter:blur(4px);color:#f0ece3;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;" style-hover="background:#ff5a5a;border-color:#ff5a5a;color:#fff;">×</button>
+          </sc-if>
+        </figure>
+      </sc-for>
+    </div>
+  </main>
+
+  <input type="file" id="gal-input" accept="image/*" multiple style="display:none;">
+
+  <!-- processing overlay -->
+  <sc-if value="{{ processing }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:350;display:flex;align-items:center;justify-content:center;background:rgba(7,6,10,.55);backdrop-filter:blur(2px);">
+      <div style="position:relative;width:150px;height:150px;">
+        <svg width="150" height="150" viewBox="0 0 220 220" style="overflow:visible;">
+          <defs>
+            <filter id="gal-goo-proc" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b"></feGaussianBlur>
+              <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"></feColorMatrix>
+            </filter>
+          </defs>
+          <g class="im-goo-g" filter="url(#gal-goo-proc)" style="animation:imGoSpin 17s linear infinite;">
+            <circle class="im-goo-c" cx="110" cy="110" r="30" fill="#f4f1ea" style="animation:imG1 3.2s ease-in-out infinite;"></circle>
+            <circle class="im-goo-c" cx="110" cy="110" r="25" fill="#f4f1ea" style="animation:imG2 3.8s ease-in-out infinite;"></circle>
+            <circle class="im-goo-c" cx="110" cy="110" r="22" fill="#f4f1ea" style="animation:imG3 2.9s ease-in-out infinite;"></circle>
+            <circle class="im-goo-c" cx="110" cy="110" r="18" fill="#f4f1ea" style="animation:imG4 2.5s ease-in-out infinite;"></circle>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- hidden admin login -->
+  <sc-if value="{{ loginOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLogin }}" style="position:fixed;inset:0;z-index:420;background:rgba(5,4,8,.86);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px;animation:galIn .3s ease both;">
+      <div onClick="{{ stop }}" style="width:min(380px,92vw);background:rgba(13,12,18,.92);border:1px solid rgba(240,236,227,.16);border-radius:14px;padding:34px 30px;box-shadow:0 30px 90px rgba(0,0,0,.6);">
+        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#c7f94b;margin-bottom:12px;">◈ {{ t.loginKicker }}</div>
+        <h2 style="font-family:'Michroma',sans-serif;font-weight:400;font-size:26px;letter-spacing:.02em;margin-bottom:10px;color:#eaf2ff;">{{ t.loginTitle }}</h2>
+        <p style="color:rgba(240,236,227,.55);font-size:13.5px;line-height:1.6;margin-bottom:22px;">{{ t.loginSub }}</p>
+        <input id="gal-pass" type="password" onKeyDown="{{ loginKey }}" placeholder="{{ t.loginPlaceholder }}" style="width:100%;background:rgba(7,6,10,.7);border:1px solid rgba(240,236,227,.22);border-radius:8px;color:#f0ece3;font-family:'Space Mono',monospace;font-size:14px;letter-spacing:1px;padding:13px 14px;outline:none;margin-bottom:14px;" style-focus="border-color:#c7f94b;">
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="color:#ff8a8a;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1px;margin-bottom:14px;">{{ t.loginWrong }}</div>
+        </sc-if>
+        <div style="display:flex;gap:10px;margin-top:6px;">
+          <button onClick="{{ closeLogin }}" style="flex:1;cursor:pointer;background:transparent;border:1px solid rgba(240,236,227,.22);color:rgba(240,236,227,.8);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;padding:12px;" style-hover="border-color:#f0ece3;">{{ t.loginCancel }}</button>
+          <button onClick="{{ submitLogin }}" style="flex:1.4;cursor:pointer;border:none;background:#c7f94b;color:#07060a;font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:2px;padding:12px;" style-hover="background:#d6ff6e;">{{ t.loginUnlock }} →</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- lightbox -->
+  <sc-if value="{{ lightboxOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLightbox }}" style="position:fixed;inset:0;z-index:400;background:rgba(5,4,8,.93);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:6vh 6vw;cursor:zoom-out;animation:galIn .3s ease both;">
+      <img src="{{ lightboxSrc }}" alt="" style="max-width:100%;max-height:100%;border-radius:9px;box-shadow:0 30px 90px rgba(0,0,0,.7);border:1px solid rgba(240,236,227,.2);">
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;}}">
+class Component extends DCLogic {
+  // ===== GitHub-backed gallery — EDIT owner + repo to match your repo =====
+  GH = { owner: 'YOUR_GITHUB_USERNAME', repo: 'YOUR_REPO_NAME', branch: 'main', dir: 'gallery' };
+  // ========================================================================
+  TOKENKEY = 'bjoed_gh_token';
+  state = { lang: 'en', photos: [], liked: this._loadLiked(), likes: this._loadLikes(), admin: !!this._loadToken(), loading: true, ghError: '', loginOpen: false, loginError: false, loginBusy: false, processing: false, lightboxOpen: false, lightboxSrc: '' };
+
+  T = {
+    en: { home:'HOME', add:'ADD PHOTOS', logout:'LOG OUT', title:'Gallery',
+      emptyAdmin:'No photos yet. Hit “Add Photos” to publish a few — they’re committed to your GitHub repo and shown to everyone.',
+      emptyPublic:'Nothing here yet. Check back soon.',
+      loginKicker:'ADMIN', loginTitle:'Connect', loginSub:'Paste a GitHub token with Contents access to manage the gallery.',
+      loginPlaceholder:'GitHub access token', loginCancel:'CANCEL', loginUnlock:'CONNECT', loginWrong:'Token rejected — check it has access to the repo.' },
+    da: { home:'FORSIDE', add:'TILFØJ', logout:'LOG UD', title:'Galleri',
+      emptyAdmin:'Ingen billeder endnu. Tryk “Tilføj” for at udgive nogle — de gemmes i dit GitHub-repo og vises for alle.',
+      emptyPublic:'Intet her endnu. Kom snart tilbage.',
+      loginKicker:'ADMIN', loginTitle:'Forbind', loginSub:'Indsæt et GitHub-token med Contents-adgang for at administrere galleriet.',
+      loginPlaceholder:'GitHub access token', loginCancel:'ANNULLÉR', loginUnlock:'FORBIND', loginWrong:'Token afvist — tjek at det har adgang til repoet.' }
+  };
+
+  bootCount = (typeof window !== 'undefined')
+    ? Math.min(63, Math.ceil(window.innerWidth / 200) * Math.ceil(window.innerHeight / 200))
+    : 24;
+
+  _loadLiked() { try { return JSON.parse(localStorage.getItem('bjoed_liked') || '{}'); } catch (e) { return {}; } }
+  _loadLikes() { try { return JSON.parse(localStorage.getItem('bjoed_likes') || '{}'); } catch (e) { return {}; } }
+  _loadToken() { try { return localStorage.getItem('bjoed_gh_token') || ''; } catch (e) { return ''; } }
+  _resolveRepo() {
+    // GitHub Pages project sites (owner.github.io/repo) auto-configure
+    try {
+      const h = location.hostname, parts = location.pathname.split('/').filter(Boolean);
+      if (/\.github\.io$/i.test(h)) {
+        this.GH.owner = h.replace(/\.github\.io$/i, '');
+        if (parts.length) this.GH.repo = parts[0];
+      }
+    } catch (e) {}
+  }
+  _apiBase() { return 'https://api.github.com/repos/' + this.GH.owner + '/' + this.GH.repo + '/contents/' + this.GH.dir; }
+  async _loadGallery() {
+    try {
+      const headers = { Accept: 'application/vnd.github+json' };
+      if (this._token) headers.Authorization = 'Bearer ' + this._token;
+      const res = await fetch(this._apiBase() + '?ref=' + this.GH.branch + '&t=' + Date.now(), { headers });
+      if (res.status === 404) { this.setState({ photos: [], loading: false, ghError: '' }); return; }
+      if (!res.ok) throw new Error('GitHub ' + res.status);
+      const items = await res.json();
+      const photos = items
+        .filter(f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name))
+        .sort((a, b) => (a.name < b.name ? 1 : -1))
+        .map(f => ({ id: f.name, name: f.name, url: f.download_url, sha: f.sha }));
+      this.setState({ photos, loading: false, ghError: '' });
+    } catch (e) {
+      this.setState({ photos: [], loading: false, ghError: String(e.message || e) });
+    }
+  }
+
+  componentDidMount() {
+    this._t0 = performance.now();
+    this._ripples = [];
+    this._token = this._loadToken();
+    this._resolveRepo();
+    this._loadGallery();
+    this._initShader();
+    this._initLoaders();
+    const inp = document.getElementById('gal-input');
+    if (inp) inp.addEventListener('change', (e) => this._handleFiles(e.target.files));
+    if (location.hash === '#admin' && !this.state.admin) this.openLogin();
+    this._onHash = () => { if (location.hash === '#admin') this.openLogin(); };
+    window.addEventListener('hashchange', this._onHash);
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf);
+    window.removeEventListener('resize', this._onResize || (()=>{}));
+    window.removeEventListener('pointermove', this._onMove || (()=>{}));
+    window.removeEventListener('pointerdown', this._onDown || (()=>{}));
+    window.removeEventListener('pointerup', this._onUp || (()=>{}));
+    window.removeEventListener('pointercancel', this._onUp || (()=>{}));
+    window.removeEventListener('hashchange', this._onHash || (()=>{}));
+  }
+
+  _downscale(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 1600;
+          let w = img.width, h = img.height;
+          if (w > max || h > max) { const s = Math.min(max / w, max / h); w = Math.round(w * s); h = Math.round(h * s); }
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          try { resolve(c.toDataURL('image/jpeg', 0.82)); } catch (e) { reject(e); }
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async _handleFiles(files) {
+    if (!files || !files.length) return;
+    if (!this._token) { this.openLogin(); return; }
+    this.setState({ processing: true });
+    let failed = 0;
+    for (const f of files) {
+      if (!f.type || f.type.indexOf('image/') !== 0) continue;
+      try {
+        const dataUrl = await this._downscale(f);
+        const b64 = dataUrl.split(',')[1];
+        const name = Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
+        const res = await fetch(this._apiBase() + '/' + name, {
+          method: 'PUT',
+          headers: { Authorization: 'Bearer ' + this._token, Accept: 'application/vnd.github+json' },
+          body: JSON.stringify({ message: 'Add gallery photo ' + name, content: b64, branch: this.GH.branch })
+        });
+        if (!res.ok) failed++;
+        await new Promise(r => setTimeout(r, 350)); // gentle on the API between commits
+      } catch (e) { failed++; }
+    }
+    const inp = document.getElementById('gal-input'); if (inp) inp.value = '';
+    await this._loadGallery();
+    this.setState({ processing: false });
+    if (failed) alert(failed + ' upload(s) failed — make sure your token has Contents: write on the repo.');
+  }
+
+  async _remove(photo) {
+    if (!this._token) return;
+    this.setState({ processing: true });
+    try {
+      const res = await fetch(this._apiBase() + '/' + photo.name, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + this._token, Accept: 'application/vnd.github+json' },
+        body: JSON.stringify({ message: 'Delete gallery photo ' + photo.name, sha: photo.sha, branch: this.GH.branch })
+      });
+      if (res.ok) await this._loadGallery();
+    } catch (e) {}
+    this.setState({ processing: false });
+  }
+
+  pickFiles = () => { const inp = document.getElementById('gal-input'); if (inp) inp.click(); };
+  _openLightbox = (src) => this.setState({ lightboxOpen: true, lightboxSrc: src });
+  closeLightbox = () => this.setState({ lightboxOpen: false });
+
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+
+  // ---- likes (Instagram-style, per browser) ----
+  _toggleLike(name) {
+    const liked = Object.assign({}, this.state.liked);
+    const likes = Object.assign({}, this.state.likes);
+    const was = !!liked[name];
+    likes[name] = Math.max(0, (likes[name] || 0) + (was ? -1 : 1));
+    if (was) delete liked[name]; else liked[name] = true;
+    try { localStorage.setItem('bjoed_liked', JSON.stringify(liked)); localStorage.setItem('bjoed_likes', JSON.stringify(likes)); } catch (e) {}
+    this.setState({ liked, likes });
+  }
+
+  // ---- hidden admin login (client-side gate only) ----
+  openLogin = () => {
+    this.setState({ loginOpen: true, loginError: false });
+    setTimeout(() => { const i = document.getElementById('gal-pass'); if (i) i.focus(); }, 60);
+  };
+  closeLogin = () => this.setState({ loginOpen: false });
+  submitLogin = async () => {
+    const inp = document.getElementById('gal-pass');
+    const val = inp ? inp.value.trim() : '';
+    if (!val) { this.setState({ loginError: true }); return; }
+    this.setState({ loginBusy: true, loginError: false });
+    try {
+      const res = await fetch('https://api.github.com/repos/' + this.GH.owner + '/' + this.GH.repo, {
+        headers: { Authorization: 'Bearer ' + val, Accept: 'application/vnd.github+json' }
+      });
+      if (!res.ok) throw new Error('bad token');
+      this._token = val;
+      try { localStorage.setItem('bjoed_gh_token', val); } catch (e) {}
+      if (location.hash === '#admin') history.replaceState(null, '', location.pathname + location.search);
+      this.setState({ admin: true, loginOpen: false, loginError: false, loginBusy: false });
+      this._loadGallery();
+    } catch (e) {
+      this.setState({ loginError: true, loginBusy: false });
+    }
+  };
+  loginKey = (e) => { if (e.key === 'Enter') this.submitLogin(); else if (e.key === 'Escape') this.closeLogin(); };
+  logout = () => { this._token = ''; try { localStorage.removeItem('bjoed_gh_token'); } catch (e) {} this.setState({ admin: false }); };
+  logoTap = () => {
+    const now = Date.now();
+    if (!this._taps || now - (this._lastTap || 0) > 2500) this._taps = 0;
+    this._lastTap = now; this._taps++;
+    if (this._taps >= 3) { this._taps = 0; this.openLogin(); }
+  };
+
+  _mkShader(gl, type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.warn('shader', gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+
+  _initShader() {
+    const cv = document.getElementById('gal-shader'); if (!cv) return;
+    let gl; try { gl = cv.getContext('webgl') || cv.getContext('experimental-webgl'); } catch (e) {}
+    if (!gl) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}';
+    const fs = [
+      'precision highp float;',
+      'uniform vec2 u_res;uniform float u_time;uniform vec2 u_mouse;',
+      'uniform vec2 u_ripPos[6];uniform float u_ripStart[6];uniform int u_ripCount;uniform float u_hold;',
+      'vec2 hash2(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return -1.0+2.0*fract(sin(p)*43758.5453);}',
+      'float hash21(vec2 p){p=fract(p*vec2(123.34,345.45));p+=dot(p,p+34.345);return fract(p.x*p.y);}',
+      'float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);return mix(mix(dot(hash2(i+vec2(0.0,0.0)),f-vec2(0.0,0.0)),dot(hash2(i+vec2(1.0,0.0)),f-vec2(1.0,0.0)),u.x),mix(dot(hash2(i+vec2(0.0,1.0)),f-vec2(0.0,1.0)),dot(hash2(i+vec2(1.0,1.0)),f-vec2(1.0,1.0)),u.x),u.y);}',
+      'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.0;a*=0.5;}return v;}',
+      'vec3 bodyCol(vec2 p,vec2 c,float R,float seed,vec3 ca,vec3 cb,vec3 Ld,out float cov,out float glow){vec2 d=p-c;float dist=length(d);glow=exp(-max(dist-R,0.0)*5.5);cov=0.0;if(dist>=R)return vec3(0.0);float z=sqrt(max(R*R-dist*dist,0.0));vec3 n=normalize(vec3(d,z));float lon=atan(n.x,z)+u_time*0.01+seed;float lat=asin(clamp(n.y,-1.0,1.0));vec2 suv=vec2(lon,lat);float terr=fbm(suv*2.6+seed*5.0);vec3 surf=mix(ca,cb,smoothstep(0.42,0.6,terr));float lam=clamp(dot(n,Ld),0.0,1.0);float term=smoothstep(0.0,0.4,lam);surf*=mix(0.04,1.0,term);float fres=pow(1.0-z/R,3.0);surf+=ca*0.4*fres*term;cov=smoothstep(R,R-0.012,dist);return surf;}',
+      'void main(){',
+      ' vec2 uv=gl_FragCoord.xy/u_res.xy;float asp=u_res.x/u_res.y;',
+      ' vec2 p=(uv-0.5);p.x*=asp;',
+      ' vec2 mraw=u_mouse/u_res.xy;vec2 m=(mraw-0.5);m.x*=asp;',
+      ' vec2 par=(mraw-0.5)*0.05;',
+      ' vec3 col=vec3(0.012,0.014,0.025);',
+      ' float neb=fbm(p*1.7+vec2(u_time*0.012,-u_time*0.008));',
+      ' col+=mix(vec3(0.008,0.01,0.025),vec3(0.05,0.035,0.075),smoothstep(0.25,0.85,neb))*0.6;',
+      ' for(int L=0;L<3;L++){ float fl=float(L); float sc=70.0+fl*110.0; vec2 sp=(p+par*(1.0+fl))*sc; vec2 ip=floor(sp); float h=hash21(ip+fl*41.0); vec2 fp=fract(sp)-0.5; float dd=length(fp); float tw=0.5+0.5*sin(u_time*(0.8+h*2.5)+h*40.0); float br=smoothstep(0.978,1.0,h)*smoothstep(0.45,0.0,dd)*(0.35+0.65*tw); col+=vec3(0.8,0.85,1.0)*br*(0.9-0.18*fl); }',
+      ' vec3 Ld=normalize(vec3(-0.55,0.45,0.72));',
+      ' float cov,glow;',
+      ' // distant ringed gas giant (upper-left)',
+      ' vec2 g1=vec2(-0.54,0.27)+par*2.2;float R1=0.17;',
+      ' vec2 rpv=(p-g1);rpv.y/=0.32;float rr=length(rpv);',
+      ' float ring=smoothstep(0.03,0.004,abs(rr-R1*1.85));',
+      ' float ringLit=clamp(dot(normalize(vec2(-0.55,0.45)),normalize(p-g1)),0.25,1.0);',
+      ' col=mix(col,vec3(0.5,0.43,0.3)*ringLit,ring*0.42);',
+      ' vec3 gg=bodyCol(p,g1,R1,4.0,vec3(0.32,0.27,0.18),vec3(0.5,0.42,0.28),Ld,cov,glow);',
+      ' col+=vec3(0.4,0.34,0.22)*glow*0.16;',
+      ' col=mix(col,gg,cov);',
+      ' // small red planet (lower-left)',
+      ' vec3 mars=bodyCol(p,vec2(-0.30,-0.34)+par*3.2,0.055,9.0,vec3(0.40,0.16,0.09),vec3(0.58,0.30,0.17),Ld,cov,glow);',
+      ' col+=vec3(0.5,0.2,0.1)*glow*0.10;',
+      ' col=mix(col,mars,cov);',
+      ' // earth, further away (lower-right)',
+      ' vec2 ec=vec2(0.50,-0.16)+par*1.6;float Re=0.27;',
+      ' vec2 de=p-ec;float ed=length(de);',
+      ' col+=vec3(0.10,0.26,0.46)*exp(-max(ed-Re,0.0)*5.5)*0.38;',
+      ' if(ed<Re){',
+      '  float z=sqrt(max(Re*Re-ed*ed,0.0));',
+      '  vec3 n=normalize(vec3(de,z));',
+      '  float lon=atan(n.x,z)+u_time*0.02;',
+      '  float lat=asin(clamp(n.y,-1.0,1.0));',
+      '  vec2 suv=vec2(lon,lat);',
+      '  float land=fbm(suv*2.3+vec2(3.0,1.0));',
+      '  float lmk=smoothstep(0.46,0.56,land);',
+      '  vec3 ocean=vec3(0.03,0.10,0.26);',
+      '  vec3 landc=mix(vec3(0.08,0.16,0.07),vec3(0.18,0.14,0.09),fbm(suv*5.0));',
+      '  vec3 surf=mix(ocean,landc,lmk);',
+      '  float cl=smoothstep(0.55,0.78,fbm(suv*3.2+vec2(u_time*0.02,0.0)));',
+      '  surf=mix(surf,vec3(0.7,0.76,0.82),cl*0.5);',
+      '  float lam=clamp(dot(n,Ld),0.0,1.0);',
+      '  float term=smoothstep(0.0,0.4,lam);',
+      '  surf*=mix(0.03,1.0,term);',
+      '  float fres=pow(1.0-z/Re,3.0);',
+      '  surf+=vec3(0.15,0.32,0.55)*fres*term;',
+      '  col=mix(col,surf,smoothstep(Re,Re-0.01,ed));',
+      ' }',
+      ' // moon, nearer (upper area)',
+      ' vec3 moon=bodyCol(p,vec2(0.10,0.31)+par*2.6,0.072,2.0,vec3(0.12,0.12,0.14),vec3(0.34,0.34,0.36),Ld,cov,glow);',
+      ' col=mix(col,moon,cov);',
+      ' // drifting asteroid belt',
+      ' for(int i=0;i<10;i++){ float fi=float(i); float ang=fi*0.63+u_time*0.04; float rad=1.05+0.06*sin(fi*2.3); vec2 ac=vec2(cos(ang)*rad*0.72,sin(ang)*rad*0.42)+vec2(0.0,-0.04)+par*4.0; float ad=length(p-ac); float arr=0.008+0.006*hash21(vec2(fi,3.0)); float am=smoothstep(arr,arr*0.3,ad); float al=clamp(dot(normalize(vec2(-0.55,0.45)),normalize(p-ac)),0.0,1.0); col=mix(col,vec3(0.34,0.30,0.27)*(0.25+0.75*al),am*0.85); }',
+      ' float md=length(m-p);float mInf=exp(-md*2.4);',
+      ' col+=vec3(0.12,0.42,0.5)*mInf*(0.14+u_hold*0.40);',
+      ' col+=vec3(0.30,0.66,0.78)*exp(-md*7.0)*u_hold*0.45;',
+      ' for(int i=0;i<6;i++){ if(i>=u_ripCount)break; vec2 rp=(u_ripPos[i]/u_res.xy-0.5);rp.x*=asp; float age=u_time-u_ripStart[i]; float d2=length(p-rp); float radius=age*0.85; float ring=exp(-pow((d2-radius)/0.055,2.0)); float fade=exp(-age*1.7)*smoothstep(0.0,0.05,age); col+=vec3(0.20,0.54,0.64)*ring*fade; }',
+      ' float vig=smoothstep(1.35,0.3,length(uv-0.5));col*=mix(0.55,1.0,vig);',
+      ' gl_FragColor=vec4(col,1.0);',
+      '}'
+    ].join('\n');
+    const vsh = this._mkShader(gl, gl.VERTEX_SHADER, vs);
+    const fsh = this._mkShader(gl, gl.FRAGMENT_SHADER, fs);
+    if (!vsh || !fsh) return;
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vsh); gl.attachShader(prog, fsh); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn('link', gl.getProgramInfoLog(prog)); return; }
+    gl.useProgram(prog);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const la = gl.getAttribLocation(prog, 'a');
+    gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
+    const U = {
+      res: gl.getUniformLocation(prog, 'u_res'), time: gl.getUniformLocation(prog, 'u_time'),
+      mouse: gl.getUniformLocation(prog, 'u_mouse'),
+      ripPos: gl.getUniformLocation(prog, 'u_ripPos[0]'), ripStart: gl.getUniformLocation(prog, 'u_ripStart[0]'),
+      ripCount: gl.getUniformLocation(prog, 'u_ripCount'),
+      hold: gl.getUniformLocation(prog, 'u_hold')
+    };
+    const resize = () => {
+      cv.width = Math.floor(window.innerWidth * dpr);
+      cv.height = Math.floor(window.innerHeight * dpr);
+      gl.viewport(0, 0, cv.width, cv.height);
+    };
+    this._onResize = resize; resize();
+    window.addEventListener('resize', resize);
+    this._mouse = [cv.width * 0.5, cv.height * 0.5];
+    this._mTarget = this._mouse.slice();
+    this._onMove = (e) => { this._mTarget = [e.clientX * dpr, cv.height - e.clientY * dpr]; };
+    this._onDown = (e) => {
+      const x = e.clientX * dpr, y = cv.height - e.clientY * dpr;
+      const now = (performance.now() - this._t0) / 1000;
+      this._ripples.push({ x, y, start: now });
+      if (this._ripples.length > 6) this._ripples.shift();
+      this._pressed = true; this._lastTrail = now;
+    };
+    this._onUp = () => { this._pressed = false; };
+    window.addEventListener('pointermove', this._onMove);
+    window.addEventListener('pointerdown', this._onDown);
+    window.addEventListener('pointerup', this._onUp);
+    window.addEventListener('pointercancel', this._onUp);
+    const posArr = new Float32Array(12), startArr = new Float32Array(6);
+    const draw = () => {
+      const now = (performance.now() - this._t0) / 1000;
+      this._mouse[0] += (this._mTarget[0] - this._mouse[0]) * 0.11;
+      this._mouse[1] += (this._mTarget[1] - this._mouse[1]) * 0.11;
+      if (this._pressed && now - (this._lastTrail || 0) > 0.42) {
+        this._lastTrail = now;
+        this._ripples.push({ x: this._mouse[0], y: this._mouse[1], start: now });
+        if (this._ripples.length > 6) this._ripples.shift();
+      }
+      this._ripples = this._ripples.filter(r => now - r.start < 2.4);
+      this._hold = (this._hold || 0) + (((this._pressed ? 1 : 0) - (this._hold || 0)) * 0.09);
+      posArr.fill(0); startArr.fill(0);
+      const n = Math.min(this._ripples.length, 6);
+      for (let i = 0; i < n; i++) { posArr[i * 2] = this._ripples[i].x; posArr[i * 2 + 1] = this._ripples[i].y; startArr[i] = this._ripples[i].start; }
+      gl.uniform2f(U.res, cv.width, cv.height);
+      gl.uniform1f(U.time, now);
+      gl.uniform2f(U.mouse, this._mouse[0], this._mouse[1]);
+      gl.uniform2fv(U.ripPos, posArr);
+      gl.uniform1fv(U.ripStart, startArr);
+      gl.uniform1i(U.ripCount, n);
+      gl.uniform1f(U.hold, this._hold || 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      this._raf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+
+  _initLoaders() {
+    document.querySelectorAll('[data-blob]').forEach(el => {
+      el.style.animationDelay = (-Math.random() * 4).toFixed(2) + 's';
+    });
+    const boot = document.getElementById('gal-boot');
+    const loader = document.getElementById('gal-boot-loader');
+    if (loader) {
+      const half = 120;
+      let tx = window.innerWidth / 2, ty = window.innerHeight / 2, cx = tx, cy = ty;
+      const place = () => { loader.style.transform = `translate(${cx - half}px,${cy - half}px)`; };
+      place();
+      this._bootMove = (e) => { tx = e.clientX; ty = e.clientY; };
+      window.addEventListener('pointermove', this._bootMove);
+      const loop = () => { cx += (tx - cx) * 0.1; cy += (ty - cy) * 0.1; place(); this._bootRaf = requestAnimationFrame(loop); };
+      loop();
+    }
+    if (boot) setTimeout(() => {
+      boot.style.opacity = '0';
+      setTimeout(() => {
+        boot.style.display = 'none';
+        cancelAnimationFrame(this._bootRaf);
+        window.removeEventListener('pointermove', this._bootMove || (()=>{}));
+      }, 900);
+    }, 1300);
+  }
+
+  toggleLang = () => this.setState(s => ({ lang: s.lang === 'en' ? 'da' : 'en' }));
+
+  renderVals() {
+    const t = this.T[this.state.lang];
+    const n = this.state.photos.length;
+    const countLabel = this.state.lang === 'en'
+      ? `${n} ${n === 1 ? 'PHOTO' : 'PHOTOS'}`
+      : `${n} ${n === 1 ? 'BILLEDE' : 'BILLEDER'}`;
+    return {
+      t,
+      toggleLang: this.toggleLang,
+      langToggleLabel: this.state.lang === 'en' ? 'EN / da' : 'DA / en',
+      bootCells: Array.from({ length: this.bootCount }, (_, i) => i),
+      isEmpty: n === 0,
+      countLabel,
+      admin: this.state.admin,
+      emptyMsg: this.state.admin ? t.emptyAdmin : t.emptyPublic,
+      pickFiles: this.pickFiles,
+      logout: this.logout,
+      logoTap: this.logoTap,
+      loginOpen: this.state.loginOpen,
+      loginError: this.state.loginError,
+      loginBusy: this.state.loginBusy,
+      openLogin: this.openLogin,
+      closeLogin: this.closeLogin,
+      submitLogin: this.submitLogin,
+      loginKey: this.loginKey,
+      stop: this.stop,
+      processing: this.state.processing,
+      lightboxOpen: this.state.lightboxOpen,
+      lightboxSrc: this.state.lightboxSrc,
+      closeLightbox: this.closeLightbox,
+      photos: this.state.photos.map(p => {
+        const liked = !!this.state.liked[p.name];
+        return {
+          url: p.url,
+          admin: this.state.admin,
+          likes: this.state.likes[p.name] || 0,
+          liked,
+          heartIcon: liked ? '♥' : '♡',
+          heartColor: liked ? '#ff5a7a' : '#f0ece3',
+          open: () => this._openLightbox(p.url),
+          toggleLike: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this._toggleLike(p.name); },
+          remove: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this._remove(p); }
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>
