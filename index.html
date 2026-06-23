@@ -195,7 +195,7 @@ class Component extends DCLogic {
     const audio = this._audio;
     if (audio) {
       if (this._playerCtx && this._playerCtx.state === 'suspended') this._playerCtx.resume();
-      audio.currentTime = audio.currentTime || 0;
+      audio.currentTime = audio.currentTime || 92;
       audio.play().catch(() => {});
       this._musicOn = true;
       clearInterval(this._fadeTimer);
